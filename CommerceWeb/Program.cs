@@ -47,10 +47,18 @@ builder.Services.AddAuthentication(options =>
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = "localhost:4200",
                         ValidAudience = "localhost:4200",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Votre_Secret_Très_Sécurisé"))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"))
                     };
                 }
 );
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", builder =>
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader());
+});
 
 
 var app = builder.Build();
@@ -62,10 +70,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("AllowAllOrigins");
+
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

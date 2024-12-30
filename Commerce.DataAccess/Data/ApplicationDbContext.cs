@@ -4,11 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Commerce.DataAccess.Data
 {
-    public class ApplicationDbContext: IdentityDbContext
+    public class ApplicationDbContext: IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
         }
+
     }
 }

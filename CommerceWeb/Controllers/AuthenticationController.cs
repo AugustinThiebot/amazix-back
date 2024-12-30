@@ -24,8 +24,6 @@ public class AuthController : ControllerBase
         {
             UserName = userDto.Email,
             Email = userDto.Email,
-            FirstName = userDto.FirstName,
-            LastName = userDto.LastName
         };
 
         var result = await _userManager.CreateAsync(user, userDto.Password);
@@ -35,7 +33,7 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        return Ok("User registered successfully.");
+        return Ok(new { message = "User registered successfully." });
     }
 
     [HttpPost("login")]
@@ -64,7 +62,7 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.Email, user.Email)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Votre_Secret_Très_Sécurisé"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         return new JwtSecurityToken(
             issuer: "localhost:4200",
