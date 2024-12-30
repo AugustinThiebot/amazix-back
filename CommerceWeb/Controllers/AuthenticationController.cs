@@ -47,9 +47,20 @@ public class AuthController : ControllerBase
 
 
 
-        var token = this.GenerateJwtToken(user);
+        var userToken = this.GenerateJwtToken(user);
+        string token = new JwtSecurityTokenHandler().WriteToken(userToken);
+        UserInfoDto userDto = new UserInfoDto {
+            userGuid = user.Id,
+            email = user.Email
+        };
+        LoginResponseDto responseObj = new LoginResponseDto
+        {
+            token = token,
+            user = userDto
+        };
 
-        return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+
+        return Ok(responseObj);
     }
 
     private JwtSecurityToken GenerateJwtToken(AppUser user)
