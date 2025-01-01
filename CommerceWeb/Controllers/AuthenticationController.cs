@@ -49,19 +49,32 @@ public class AuthController : ControllerBase
 
         var userToken = this.GenerateJwtToken(user);
         string token = new JwtSecurityTokenHandler().WriteToken(userToken);
+        Response.Cookies.Append("auth_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.Now.AddMinutes(30)
+        });
         UserInfoDto userDto = new UserInfoDto {
             userGuid = user.Id,
             email = user.Email
         };
-        LoginResponseDto responseObj = new LoginResponseDto
-        {
-            token = token,
-            user = userDto
-        };
 
 
-        return Ok(responseObj);
+        return Ok(userDto);
     }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("auth_token");
+        return Ok(new
+        {
+            message = "Logged out successfully."
+        });
+    }
+
 
     private JwtSecurityToken GenerateJwtToken(AppUser user)
     {
@@ -76,7 +89,7 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         return new JwtSecurityToken(
-            issuer: "localhost:4200",
+            issuer: "localhost:7139",
             audience: "localhost:4200",
             claims: claims,
             expires: DateTime.Now.AddMinutes(30),
