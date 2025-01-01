@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.Now.AddMinutes(30)
         });
-        UserInfoDto userDto = new UserInfoDto {
+        LoginResponseDto userDto = new LoginResponseDto {
             userGuid = user.Id,
             email = user.Email
         };
