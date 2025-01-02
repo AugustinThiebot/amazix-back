@@ -1,4 +1,6 @@
 ﻿using Commerce.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -53,8 +55,8 @@ public class AuthController : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTime.Now.AddMinutes(30)
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.Now.AddMinutes(2)
         });
         LoggedUserDto userDto = new LoggedUserDto
         {
@@ -66,7 +68,9 @@ public class AuthController : ControllerBase
         return Ok(userDto);
     }
 
+    
     [HttpPost("logout")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public IActionResult Logout()
     {
         Response.Cookies.Delete("auth_token");
@@ -93,7 +97,7 @@ public class AuthController : ControllerBase
             issuer: "localhost:7139",
             audience: "localhost:4200",
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.Now.AddMinutes(2),
             signingCredentials: creds
             );
 

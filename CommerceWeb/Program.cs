@@ -46,18 +46,30 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         ValidAudience = "localhost:4200",
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"))
                     };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            if (context.Request.Cookies.ContainsKey("auth_token"))
+                            {
+                                context.Token = context.Request.Cookies["auth_token"];
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 }
 );
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    options.MinimumSameSitePolicy = SameSiteMode.Strict;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngularFrontend", builder =>
-        builder.WithOrigins("http://localhost:4200")
+        builder.WithOrigins("https://localhost:4200")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials());
@@ -73,11 +85,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAngularFrontend");
 
 app.UseHttpsRedirection();
 app.UseCookiePolicy();
 app.UseMiddleware<JwtCookieMiddleware>();
+app.UseCors("AllowAngularFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
