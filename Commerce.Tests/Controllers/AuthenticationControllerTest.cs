@@ -143,7 +143,7 @@ namespace Commerce.Tests.Controllers
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(200, okResult.StatusCode);
             
-            var responseBody = Assert.IsType<LoginResponseDto>(okResult.Value);
+            var responseBody = Assert.IsType<LoggedUserDto>(okResult.Value);
             Assert.NotNull(responseBody);
             Assert.Equal(responseBody.email, mockAppUser.Email);
             Assert.Equal(responseBody.userGuid, mockAppUser.Id);

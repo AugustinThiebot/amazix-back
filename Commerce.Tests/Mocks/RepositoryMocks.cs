@@ -30,9 +30,9 @@ namespace Commerce.Tests.Mocks
             };
             return mockUserDto;
         }
-        public static LoginResponseDto GetLoginResponseDtoMock()
+        public static LoggedUserDto GetLoginResponseDtoMock()
         {
-            var mockUserDto = new LoginResponseDto
+            var mockUserDto = new LoggedUserDto
             {
                 userGuid = "abcd",
                 email = "test@mail.com"

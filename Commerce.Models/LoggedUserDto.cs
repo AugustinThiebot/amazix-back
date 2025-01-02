@@ -1,6 +1,6 @@
 ﻿namespace Commerce.Models
 {
-       public class LoginResponseDto
+       public class LoggedUserDto
     {
         public string userGuid { get; set; }
         public string email { get; set; }
