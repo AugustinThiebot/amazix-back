@@ -103,4 +103,39 @@ public class AuthController : ControllerBase
 
     }
 
+
+
+    [HttpGet("validate-token")]
+    public IActionResult ValidateToken()
+    {
+        var token = Request.Cookies["auth_token"];
+        if (string.IsNullOrEmpty(token))
+        {
+            return Unauthorized(new { message = "Token is missing or invalid." });
+        }
+
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var tokenValidationParams = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "localhost:7139",
+                ValidAudience = "localhost:4200",
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"))
+            };
+
+            handler.ValidateToken(token, tokenValidationParams, out _);
+            return Ok(new { valid = true });
+        }
+        catch
+        {
+            return Unauthorized(new { valid = false });
+        }
+    }
+
+
 }
