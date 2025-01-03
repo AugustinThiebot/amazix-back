@@ -36,24 +36,25 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => {
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    var jwtSetings = builder.Configuration.GetSection("Jwt");
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "localhost:7139",
-                        ValidAudience = "localhost:4200",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"))
+                        ValidIssuer = jwtSetings["Issuer"],
+                        ValidAudience = jwtSetings["Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSetings["Key"]))
                     };
 
                     options.Events = new JwtBearerEvents
                     {
                         OnMessageReceived = context =>
                         {
-                            if (context.Request.Cookies.ContainsKey("auth_token"))
+                            if (context.Request.Cookies.ContainsKey(jwtSetings["Name"]))
                             {
-                                context.Token = context.Request.Cookies["auth_token"];
+                                context.Token = context.Request.Cookies[jwtSetings["Name"]];
                             }
                             return Task.CompletedTask;
                         }

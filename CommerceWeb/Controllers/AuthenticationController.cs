@@ -13,10 +13,20 @@ using System.Text;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
+    private readonly string _jwtName;
+    private readonly string _jwtToken;
+    private readonly string _jwtIssuer;
+    private readonly string _jwtAudience;
+    private readonly int _tokenLifetimeMinutes;
 
-    public AuthController(UserManager<AppUser> userManager)
+    public AuthController(UserManager<AppUser> userManager, IConfiguration configuration)
     {
         _userManager = userManager;
+        _jwtName = configuration["Jwt:Name"];
+        _jwtToken = configuration["Jwt:Key"];
+        _jwtIssuer = configuration["Jwt:Issuer"];
+        _jwtAudience = configuration["Jwt:Audience"];
+        _tokenLifetimeMinutes = int.Parse(configuration["Jwt:TokenLifetimeMinutes"]);
     }
 
     [HttpPost("register")]
@@ -51,12 +61,12 @@ public class AuthController : ControllerBase
 
         var userToken = this.GenerateJwtToken(user);
         string token = new JwtSecurityTokenHandler().WriteToken(userToken);
-        Response.Cookies.Append("auth_token", token, new CookieOptions
+        Response.Cookies.Append(_jwtName, token, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            Expires = DateTime.Now.AddMinutes(2)
+            Expires = DateTime.Now.AddMinutes(_tokenLifetimeMinutes)
         });
         LoggedUserDto userDto = new LoggedUserDto
         {
@@ -73,7 +83,7 @@ public class AuthController : ControllerBase
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("auth_token");
+        Response.Cookies.Delete(_jwtName);
         return Ok(new
         {
             message = "Logged out successfully."
@@ -91,13 +101,13 @@ public class AuthController : ControllerBase
             new Claim(ClaimTypes.Email, user.Email)
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtToken));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         return new JwtSecurityToken(
-            issuer: "localhost:7139",
-            audience: "localhost:4200",
+            issuer: _jwtIssuer,
+            audience: _jwtAudience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(2),
+            expires: DateTime.Now.AddMinutes(_tokenLifetimeMinutes),
             signingCredentials: creds
             );
 
@@ -108,7 +118,7 @@ public class AuthController : ControllerBase
     [HttpGet("validate-token")]
     public IActionResult ValidateToken()
     {
-        var token = Request.Cookies["auth_token"];
+        var token = Request.Cookies[_jwtName];
         if (string.IsNullOrEmpty(token))
         {
             return Unauthorized(new { message = "Token is missing or invalid." });
@@ -123,9 +133,9 @@ public class AuthController : ControllerBase
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = "localhost:7139",
-                ValidAudience = "localhost:4200",
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("d1-2fGb,8e4M@L?dfqesUu4TOS#32T_@"))
+                ValidIssuer = _jwtIssuer,
+                ValidAudience = _jwtAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtToken))
             };
 
             handler.ValidateToken(token, tokenValidationParams, out _);

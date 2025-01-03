@@ -1,5 +1,6 @@
 ﻿using Commerce.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace Commerce.Tests.Mocks
@@ -11,6 +12,17 @@ namespace Commerce.Tests.Mocks
             var userStoreMock = new Mock<IUserStore<AppUser>>();
             var userManagerMock = new Mock<UserManager<AppUser>>(userStoreMock.Object, null, null, null, null, null, null, null, null);
             return userManagerMock;
+        }
+
+        public static Mock<IConfiguration> GetConfigurationMock()
+        {
+            var mockConfiguration = new Mock<IConfiguration>();
+            mockConfiguration.Setup(c => c["Jwt:Key"]).Returns("a1-2fGb,8e4M@L?dfqesUu4TOS#32T_@");
+            mockConfiguration.Setup(c => c["Jwt:Issuer"]).Returns("localhost:7139");
+            mockConfiguration.Setup(c => c["Jwt:Audience"]).Returns("localhost:4200");
+            mockConfiguration.Setup(c => c["Jwt:Name"]).Returns("auth_token");
+            mockConfiguration.Setup(c => c["Jwt:TokenLifetimeMinutes"]).Returns("3");
+            return mockConfiguration;
         }
         public static UserForLoginDto GetUserForLoginDtoMock()
         {

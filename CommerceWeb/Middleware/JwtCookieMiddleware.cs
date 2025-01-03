@@ -3,15 +3,18 @@
     public class JwtCookieMiddleware
     {
         private readonly RequestDelegate _next;
-        public JwtCookieMiddleware(RequestDelegate next)
+        private readonly IConfiguration _configuration;
+        public JwtCookieMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            _configuration = configuration;
         }
         public async Task InvokeAsync(HttpContext context)
         {
-            if (context.Request.Cookies.ContainsKey("auth_token"))
+            var jwtSettings = _configuration.GetSection("Jwt");
+            if (context.Request.Cookies.ContainsKey(jwtSettings["Name"]))
             {
-                var token = context.Request.Cookies["auth_token"];
+                var token = context.Request.Cookies[jwtSettings["Name"]];
                 context.Request.Headers.Add("Authorization", $"Bearer {token}");
             }
             await _next(context);
