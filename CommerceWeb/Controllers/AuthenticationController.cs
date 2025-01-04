@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 [ApiController]
@@ -18,6 +19,7 @@ public class AuthController : ControllerBase
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
     private readonly int _tokenLifetimeMinutes;
+    private readonly int _refreshTokenLifetimeDays;
 
     public AuthController(UserManager<AppUser> userManager, IConfiguration configuration)
     {
@@ -27,6 +29,7 @@ public class AuthController : ControllerBase
         _jwtIssuer = configuration["Jwt:Issuer"];
         _jwtAudience = configuration["Jwt:Audience"];
         _tokenLifetimeMinutes = int.Parse(configuration["Jwt:TokenLifetimeMinutes"]);
+        _refreshTokenLifetimeDays = int.Parse(configuration["Jwt:RefreshTokenLifetimeDays"]);
     }
 
     [HttpPost("register")]
@@ -90,6 +93,36 @@ public class AuthController : ControllerBase
         });
     }
 
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] TokenRequestDto tokenRequest)
+    {
+
+        var user = await _userManager.FindByIdAsync(tokenRequest.UserId);
+        if (user == null || user.RefreshToken != tokenRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+        {
+            return Unauthorized(new { message = "Invalid or expired refresh token."});
+        }
+
+        var newTwtToken = GenerateJwtToken(user);
+        var newRefreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenLifetimeDays);
+
+        await _userManager.UpdateAsync(user);
+
+        string token = new JwtSecurityTokenHandler().WriteToken(newTwtToken);
+        Response.Cookies.Append(_jwtName, token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.Now.AddMinutes(_tokenLifetimeMinutes)
+        });
+
+        return Ok(new { refreshToken = newRefreshToken });
+    }
+
 
     private JwtSecurityToken GenerateJwtToken(AppUser user)
     {
@@ -111,6 +144,16 @@ public class AuthController : ControllerBase
             signingCredentials: creds
             );
 
+    }
+
+    private string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomNumber);
+        }
+        return Convert.ToBase64String(randomNumber);
     }
 
 
