@@ -60,10 +60,15 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid login attempt.");
         }
 
-
-
         var userToken = this.GenerateJwtToken(user);
+        var refreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenLifetimeDays);
+        await _userManager.UpdateAsync(user);
+
         string token = new JwtSecurityTokenHandler().WriteToken(userToken);
+
         Response.Cookies.Append(_jwtName, token, new CookieOptions
         {
             HttpOnly = true,
@@ -107,7 +112,7 @@ public class AuthController : ControllerBase
         var newRefreshToken = GenerateRefreshToken();
 
         user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenLifetimeDays);
+        //user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenLifetimeDays);
 
         await _userManager.UpdateAsync(user);
 
