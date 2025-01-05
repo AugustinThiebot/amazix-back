@@ -15,21 +15,23 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly string _jwtName;
+    private readonly string _jwtRefreshName;
     private readonly string _jwtToken;
     private readonly string _jwtIssuer;
     private readonly string _jwtAudience;
     private readonly int _tokenLifetimeMinutes;
-    private readonly int _refreshTokenLifetimeDays;
+    private readonly int _refreshTokenLifetimeHours;
 
     public AuthController(UserManager<AppUser> userManager, IConfiguration configuration)
     {
         _userManager = userManager;
         _jwtName = configuration["Jwt:Name"];
+        _jwtRefreshName = configuration["Jwt:RefreshName"];
         _jwtToken = configuration["Jwt:Key"];
         _jwtIssuer = configuration["Jwt:Issuer"];
         _jwtAudience = configuration["Jwt:Audience"];
         _tokenLifetimeMinutes = int.Parse(configuration["Jwt:TokenLifetimeMinutes"]);
-        _refreshTokenLifetimeDays = int.Parse(configuration["Jwt:RefreshTokenLifetimeDays"]);
+        _refreshTokenLifetimeHours = int.Parse(configuration["Jwt:RefreshTokenLifetimeHours"]);
     }
 
     [HttpPost("register")]
@@ -64,7 +66,7 @@ public class AuthController : ControllerBase
         var refreshToken = GenerateRefreshToken();
 
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(_refreshTokenLifetimeDays);
+        user.RefreshTokenExpiryTime = DateTime.Now.AddHours(_refreshTokenLifetimeHours);
         await _userManager.UpdateAsync(user);
 
         string token = new JwtSecurityTokenHandler().WriteToken(userToken);
@@ -75,6 +77,14 @@ public class AuthController : ControllerBase
             Secure = true,
             SameSite = SameSiteMode.None,
             Expires = DateTime.Now.AddMinutes(_tokenLifetimeMinutes)
+        });
+        Response.Cookies.Append(_jwtRefreshName, refreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.Now.AddMinutes(_refreshTokenLifetimeHours),
+            Path = "/api/Auth/refresh"
         });
         LoggedUserDto userDto = new LoggedUserDto
         {
@@ -92,6 +102,7 @@ public class AuthController : ControllerBase
     public IActionResult Logout()
     {
         Response.Cookies.Delete(_jwtName);
+        Response.Cookies.Delete(_jwtRefreshName);
         return Ok(new
         {
             message = "Logged out successfully."
@@ -103,12 +114,13 @@ public class AuthController : ControllerBase
     {
 
         var user = await _userManager.FindByIdAsync(tokenRequest.UserId);
-        if (user == null || user.RefreshToken != tokenRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+        var refreshToken = Request.Cookies[_jwtRefreshName];
+        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
         {
             return Unauthorized(new { message = "Invalid or expired refresh token."});
         }
 
-        var newTwtToken = GenerateJwtToken(user);
+        var newJwtToken = GenerateJwtToken(user);
         var newRefreshToken = GenerateRefreshToken();
 
         user.RefreshToken = newRefreshToken;
@@ -116,7 +128,7 @@ public class AuthController : ControllerBase
 
         await _userManager.UpdateAsync(user);
 
-        string token = new JwtSecurityTokenHandler().WriteToken(newTwtToken);
+        string token = new JwtSecurityTokenHandler().WriteToken(newJwtToken);
         Response.Cookies.Append(_jwtName, token, new CookieOptions
         {
             HttpOnly = true,
@@ -124,8 +136,16 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.None,
             Expires = DateTime.Now.AddMinutes(_tokenLifetimeMinutes)
         });
+        Response.Cookies.Append(_jwtRefreshName, newRefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = user.RefreshTokenExpiryTime,
+            Path = "/api/Auth/refresh"
+        });
 
-        return Ok(new { refreshToken = newRefreshToken });
+        return Ok(new { message = "Token refreshed successfully." });
     }
 
 
