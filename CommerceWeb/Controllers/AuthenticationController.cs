@@ -83,7 +83,7 @@ public class AuthController : ControllerBase
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            Expires = DateTime.Now.AddMinutes(_refreshTokenLifetimeHours),
+            Expires = DateTime.Now.AddHours(_refreshTokenLifetimeHours),
             Path = "/api/Auth/refresh"
         });
         LoggedUserDto userDto = new LoggedUserDto

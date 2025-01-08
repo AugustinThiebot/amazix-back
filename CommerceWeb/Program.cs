@@ -1,6 +1,6 @@
 using Commerce.DataAccess.Data;
 using Commerce.Models;
-using CommerceWeb.Middleware;
+using CommerceWeb.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -90,10 +90,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCookiePolicy();
 app.UseMiddleware<JwtCookieMiddleware>();
+app.UseMiddleware<CsrfMiddleware>();
 app.UseCors("AllowAngularFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<CsrfValidationMiddleware>();
 
 app.MapControllers();
-
 app.Run();

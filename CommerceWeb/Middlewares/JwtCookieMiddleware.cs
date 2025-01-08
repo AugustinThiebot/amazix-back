@@ -1,4 +1,4 @@
-﻿namespace CommerceWeb.Middleware
+﻿namespace CommerceWeb.Middlewares
 {
     public class JwtCookieMiddleware
     {
