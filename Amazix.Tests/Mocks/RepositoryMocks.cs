@@ -1,9 +1,9 @@
-﻿using Commerce.Models;
+﻿using Amazix.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
-namespace Commerce.Tests.Mocks
+namespace Amazix.Tests.Mocks
 {
     public class RepositoryMocks
     {
@@ -21,7 +21,9 @@ namespace Commerce.Tests.Mocks
             mockConfiguration.Setup(c => c["Jwt:Issuer"]).Returns("localhost:7139");
             mockConfiguration.Setup(c => c["Jwt:Audience"]).Returns("localhost:4200");
             mockConfiguration.Setup(c => c["Jwt:Name"]).Returns("auth_token");
+            mockConfiguration.Setup(c => c["Jwt:RefreshName"]).Returns("auth_refresh_token");
             mockConfiguration.Setup(c => c["Jwt:TokenLifetimeMinutes"]).Returns("3");
+            mockConfiguration.Setup(c => c["Jwt:RefreshTokenLifetimeHours"]).Returns("4");
             return mockConfiguration;
         }
         public static UserForLoginDto GetUserForLoginDtoMock()

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Commerce.Models
+namespace Amazix.Models
 {
     public class AppUser: IdentityUser
     {

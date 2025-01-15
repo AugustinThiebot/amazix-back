@@ -1,4 +1,4 @@
-﻿namespace CommerceWeb.Middlewares
+﻿namespace AmazixWeb.Middlewares
 {
     public class CsrfMiddleware
     {

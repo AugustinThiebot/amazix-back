@@ -1,6 +1,6 @@
-using Commerce.DataAccess.Data;
-using Commerce.Models;
-using CommerceWeb.Middlewares;
+using Amazix.DataAccess.Data;
+using Amazix.Models;
+using AmazixWeb.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

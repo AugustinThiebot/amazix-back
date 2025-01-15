@@ -1,4 +1,4 @@
-﻿using Commerce.Models;
+﻿using Amazix.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommerceWeb\CommerceWeb.csproj" />
+    <ProjectReference Include="..\AmazixWeb\AmazixWeb.csproj" />
   </ItemGroup>
 
   <ItemGroup>

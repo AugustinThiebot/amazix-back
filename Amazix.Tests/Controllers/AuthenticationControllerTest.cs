@@ -1,5 +1,5 @@
-﻿using Commerce.Models;
-using Commerce.Tests.Mocks;
+﻿using Amazix.Models;
+using Amazix.Tests.Mocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +7,7 @@ using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Commerce.Tests.Controllers
+namespace Amazix.Tests.Controllers
 {
     public class AuthenticationControllerTest
     {
@@ -187,7 +187,7 @@ namespace Commerce.Tests.Controllers
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(200, okResult.StatusCode);
-            mockCookieResponse.Verify(c => c.Delete(It.IsAny<string>()), Times.Once);
+            mockCookieResponse.Verify(c => c.Delete(It.IsAny<string>()), Times.Exactly(2));
 
         }
 

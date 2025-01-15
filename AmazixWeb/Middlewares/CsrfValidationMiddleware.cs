@@ -1,6 +1,6 @@
-﻿using CommerceWeb.Attributes;
+﻿using AmazixWeb.Attributes;
 
-namespace CommerceWeb.Middlewares
+namespace AmazixWeb.Middlewares
 {
     public class CsrfValidationMiddleware
     {

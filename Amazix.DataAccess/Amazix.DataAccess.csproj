@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Commerce.Models\Commerce.Models.csproj" />
+    <ProjectReference Include="..\Amazix.Models\Amazix.Models.csproj" />
   </ItemGroup>
 
 </Project>

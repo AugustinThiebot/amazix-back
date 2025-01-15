@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Commerce.DataAccess\Commerce.DataAccess.csproj" />
+    <ProjectReference Include="..\Amazix.DataAccess\Amazix.DataAccess.csproj" />
   </ItemGroup>
 
 </Project>

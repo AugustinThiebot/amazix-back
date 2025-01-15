@@ -1,4 +1,4 @@
-﻿namespace Commerce.Models
+﻿namespace Amazix.Models
 {
     public class UserForRegistrationDto
     {
