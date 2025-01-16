@@ -20,7 +20,7 @@ namespace AmazixWeb.Services
             _urlHelper = urlHelper;
         }
 
-        public async Task<IdentityResult> RegisterUserAsync(UserForRegistrationDto userDto)
+        public async Task<IdentityResult> RegisterUserAsync(UserForRegistrationDto userDto, string scheme)
         {
             var user = new AppUser
             {
@@ -32,7 +32,7 @@ namespace AmazixWeb.Services
 
             if (result.Succeeded) {
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var confirmationLink = _urlHelper.Action("ConfirmEmail", "Registration", new { userId = user.Id, token = token }, Request.Scheme);
+                var confirmationLink = _urlHelper.Action("ConfirmEmail", "Registration", new { userId = user.Id, token = token }, scheme);
                 var messageContent = new StringBuilder()
                     .AppendLine("Thank you for signing up for Amazix. To complete your registration, please confirm your email address by clicking the link below :")
                     .AppendLine()

@@ -1,43 +1,36 @@
 ﻿using Amazix.Models;
 using Amazix.Tests.Mocks;
 using AmazixWeb.Controllers;
+using AmazixWeb.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Amazix.Tests.Controllers
 {
     public class RegistrationControllerTest
     {
         [Fact]
-        public async void Register_ReturnsOk_FValidUser()
+        public async Task Register_ShouldReturnOk_WhenRegistrationSucceeds()
         {
-            // Arrange
-            var mockUserManager = RepositoryMocks.GetUserManagerMock();
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
-                           .ReturnsAsync(IdentityResult.Success);
-            var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
-            var mockEmailService = RepositoryMocks.GetEmailServiceMock();
-            var mockUrlHelper = RepositoryMocks.GetUrlHelperMock();
+            var mockRegistrationService = new Mock<IRegistrationService>();
+            mockRegistrationService.Setup(s => s.RegisterUserAsync(It.IsAny<UserForRegistrationDto>(), It.IsAny<string>()))
+                                   .ReturnsAsync(IdentityResult.Success);
             var mockHttpContext = new Mock<HttpContext>();
-            mockHttpContext.SetupGet(ctx => ctx.Request.Scheme).Returns("https");
-            var registrationController = new RegistrationController(mockUserManager.Object, mockEmailService.Object);
-            registrationController.Url = mockUrlHelper.Object;
-            registrationController.ControllerContext = new ControllerContext { HttpContext = mockHttpContext.Object };
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Scheme).Returns("https");
+            mockHttpContext.Setup(c => c.Request).Returns(mockRequest.Object);
+            var registrationController = new RegistrationController(mockRegistrationService.Object);
+            registrationController.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object,
+            };
+            var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
 
-
-            // Act
             var result = await registrationController.Register(mockUserDto);
 
-            // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(200, okResult.StatusCode);
             string okResultValue = JsonConvert.SerializeObject((dynamic)okResult.Value);
@@ -46,39 +39,24 @@ namespace Amazix.Tests.Controllers
         }
 
         [Fact]
-        public async void Register_ReturnsBadRequest_ForDuplicateEmail()
+        public async Task Register_ShouldReturnBadRequest_WhenRegistrationFails()
         {
-            // Arrange
-            var mockUserManager = RepositoryMocks.GetUserManagerMock();
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
-                           .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Duplicate email." }));
+            var mockRegistrationService = new Mock<IRegistrationService>();
+            mockRegistrationService.Setup(s => s.RegisterUserAsync(It.IsAny<UserForRegistrationDto>(), It.IsAny<string>()))
+                                   .ReturnsAsync(IdentityResult.Failed());
+            var mockHttpContext = new Mock<HttpContext>();
+            var mockRequest = new Mock<HttpRequest>();
+            mockRequest.Setup(r => r.Scheme).Returns("https");
+            mockHttpContext.Setup(c => c.Request).Returns(mockRequest.Object);
+            var registrationController = new RegistrationController(mockRegistrationService.Object);
+            registrationController.ControllerContext = new ControllerContext
+            {
+                HttpContext = mockHttpContext.Object,
+            };
             var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
-            var mockEmailService = RepositoryMocks.GetEmailServiceMock();
-            var registrationController = new RegistrationController(mockUserManager.Object, mockEmailService.Object);
 
-            // Act
             var result = await registrationController.Register(mockUserDto);
 
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal(400, badRequestResult.StatusCode);
-        }
-
-        [Fact]
-        public async void Register_ReturnsBadRequest_ForUnvalidPassword()
-        {
-            // Arrange
-            var mockUserManager = RepositoryMocks.GetUserManagerMock();
-            mockUserManager.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
-                           .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Weak password." }));
-            var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
-            var mockEmailService = RepositoryMocks.GetEmailServiceMock();
-            var registrationController = new RegistrationController(mockUserManager.Object, mockEmailService.Object);
-
-            // Act
-            var result = await registrationController.Register(mockUserDto);
-
-            // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal(400, badRequestResult.StatusCode);
         }
