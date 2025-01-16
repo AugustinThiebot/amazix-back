@@ -53,9 +53,42 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors);
         }
 
-        var message = new Message(new string[] { userDto.Email }, "Welcome", "This is some content");
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        var confirmationLink = Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, token = token }, Request.Scheme);
+        var messageContent = new StringBuilder()
+            .AppendLine("Thank you for signing up for Amazix. To complete your registration, please confirm your email address by clicking the link below :")
+            .AppendLine()
+            .AppendLine(confirmationLink)
+            .AppendLine()
+            .AppendLine()
+            .AppendLine("If you did not initiate this request or believe it was made in error, do not click on this link. You can safely ignore this email.")
+            .AppendLine()
+            .AppendLine("Best regards,")
+            .AppendLine("The Amazix Team")
+            .ToString();
+        var message = new Message(new string[] { userDto.Email },
+                                "Welcome to Amazix - Please confirm your email",messageContent);
         _emailSender.SendEmail(message);
         return Ok(new { message = "User registered successfully." });
+    }
+
+    [HttpGet("confirm-email")]
+    public async Task<IActionResult> ConfirmEmail(string userId, string token)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+        {
+            return BadRequest(new { message = "Invalid token or user ID." });
+        }
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return NotFound(new { message = "User not found."});
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, token);
+        if (result.Succeeded) {
+            return Ok("Email confirmed successfully");
+        }
+        return BadRequest(new {message = "Email confirmation failed"});
     }
 
     [HttpPost("login")]
