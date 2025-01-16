@@ -1,4 +1,5 @@
 using Amazix.DataAccess.Data;
+using Amazix.Email;
 using Amazix.Models;
 using AmazixWeb.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,10 +10,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

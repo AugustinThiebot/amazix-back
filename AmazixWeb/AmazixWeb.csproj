@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Amazix.DataAccess\Amazix.DataAccess.csproj" />
+    <ProjectReference Include="..\Amazix.Email\Amazix.Email.csproj" />
   </ItemGroup>
 
 </Project>

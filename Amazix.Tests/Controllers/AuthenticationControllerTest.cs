@@ -20,7 +20,8 @@ namespace Amazix.Tests.Controllers
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
                            .ReturnsAsync(IdentityResult.Success);
             var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
-            var authenticationController = new AuthController(mockUserManager.Object, mockConfiguration.Object);
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authenticationController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object);
 
             // Act
             var result = await authenticationController.Register(mockUserDto);
@@ -40,9 +41,10 @@ namespace Amazix.Tests.Controllers
             var mockUserManager = RepositoryMocks.GetUserManagerMock();
             var mockConfiguration = RepositoryMocks.GetConfigurationMock();
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
-                           .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Duplicate email."}));
+                           .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Duplicate email." }));
             var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
-            var authenticationController = new AuthController(mockUserManager.Object, mockConfiguration.Object);
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authenticationController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object);
 
             // Act
             var result = await authenticationController.Register(mockUserDto);
@@ -61,7 +63,8 @@ namespace Amazix.Tests.Controllers
             mockUserManager.Setup(x => x.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
                            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Weak password." }));
             var mockUserDto = RepositoryMocks.GetUserForRegistrationDtoMock();
-            var authenticationController = new AuthController(mockUserManager.Object, mockConfiguration.Object);
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authenticationController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object);
 
             // Act
             var result = await authenticationController.Register(mockUserDto);
@@ -81,9 +84,12 @@ namespace Amazix.Tests.Controllers
             var mockAppUser = RepositoryMocks.GetAppUserMock();
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                            .ReturnsAsync(mockAppUser);
+            mockUserManager.Setup(x => x.IsEmailConfirmedAsync(It.IsAny<AppUser>()))
+                           .ReturnsAsync(true);
             mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
                            .ReturnsAsync(false);
-            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object);
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object);
 
             // Act
             var result = await authController.Login(mockUserDto);
@@ -103,7 +109,8 @@ namespace Amazix.Tests.Controllers
             var mockUserDto = RepositoryMocks.GetUserForLoginDtoMock();
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                            .ReturnsAsync((AppUser)null);
-            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object);
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object);
 
             // Act
             var result = await authController.Login(mockUserDto);
@@ -130,6 +137,8 @@ namespace Amazix.Tests.Controllers
             var mockAppUser = RepositoryMocks.GetAppUserMock();
             mockUserManager.Setup(x => x.FindByEmailAsync(It.IsAny<string>()))
                            .ReturnsAsync(mockAppUser);
+            mockUserManager.Setup(x => x.IsEmailConfirmedAsync(It.IsAny<AppUser>()))
+                           .ReturnsAsync(true);
             mockUserManager.Setup(x => x.CheckPasswordAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
                             .ReturnsAsync(true);
 
@@ -138,8 +147,8 @@ namespace Amazix.Tests.Controllers
             var mockCookieResponse = new Mock<IResponseCookies>();
             mockHttpContext.Setup(x => x.Response).Returns(mockResponse.Object);
             mockResponse.Setup(x => x.Cookies).Returns(mockCookieResponse.Object);
-
-            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object)
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -153,7 +162,7 @@ namespace Amazix.Tests.Controllers
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(200, okResult.StatusCode);
-            
+
             var responseBody = Assert.IsType<LoggedUserDto>(okResult.Value);
             Assert.NotNull(responseBody);
             Assert.Equal(responseBody.email, mockAppUser.Email);
@@ -173,7 +182,8 @@ namespace Amazix.Tests.Controllers
             var mockCookieResponse = new Mock<IResponseCookies>();
             mockHttpContext.Setup(x => x.Response).Returns(mockResponse.Object);
             mockResponse.Setup(x => x.Cookies).Returns(mockCookieResponse.Object);
-            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object)
+            var mockEmailSender = RepositoryMocks.GetEmailSenderMock();
+            var authController = new AuthController(mockUserManager.Object, mockConfiguration.Object, mockEmailSender.Object)
             {
                 ControllerContext = new ControllerContext
                 {

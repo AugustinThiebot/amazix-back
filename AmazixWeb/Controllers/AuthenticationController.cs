@@ -1,4 +1,5 @@
-﻿using Amazix.Models;
+﻿using Amazix.Email;
+using Amazix.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,8 +22,9 @@ public class AuthController : ControllerBase
     private readonly string _jwtAudience;
     private readonly int _tokenLifetimeMinutes;
     private readonly int _refreshTokenLifetimeHours;
+    private readonly IEmailSender _emailSender;
 
-    public AuthController(UserManager<AppUser> userManager, IConfiguration configuration)
+    public AuthController(UserManager<AppUser> userManager, IConfiguration configuration, IEmailSender emailSender)
     {
         _userManager = userManager;
         _jwtName = configuration["Jwt:Name"];
@@ -32,6 +34,7 @@ public class AuthController : ControllerBase
         _jwtAudience = configuration["Jwt:Audience"];
         _tokenLifetimeMinutes = int.Parse(configuration["Jwt:TokenLifetimeMinutes"]);
         _refreshTokenLifetimeHours = int.Parse(configuration["Jwt:RefreshTokenLifetimeHours"]);
+        _emailSender = emailSender;
     }
 
     [HttpPost("register")]
@@ -50,14 +53,24 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors);
         }
 
+        var message = new Message(new string[] { userDto.Email }, "Welcome", "This is some content");
+        _emailSender.SendEmail(message);
         return Ok(new { message = "User registered successfully." });
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] UserForLoginDto loginDto)
     {
-        var user = await _userManager.FindByEmailAsync(loginDto.Email);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
+        AppUser user = await _userManager.FindByEmailAsync(loginDto.Email);
+        if (user == null)
+        {
+            return Unauthorized("Invalid login attempt.");
+        }
+        else if (!await _userManager.IsEmailConfirmedAsync(user))
+        {
+            return Unauthorized("Email is not confirmed");
+        }
+        else if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
         {
             return Unauthorized("Invalid login attempt.");
         }
