@@ -1,6 +1,8 @@
 ﻿using Amazix.Email.Interfaces;
 using Amazix.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
@@ -68,6 +70,13 @@ namespace Amazix.Tests.Mocks
                 UserName = "test@mail.com"
             };
             return mockAppUser;
+        }
+
+        public static Mock<IUrlHelper> GetUrlHelperMock()
+        {
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            mockUrlHelper.Setup(url => url.Action(It.IsAny<UrlActionContext>())).Returns("http://mockurl/ConfirmEmail");
+            return mockUrlHelper;
         }
     }
 }
