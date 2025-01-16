@@ -35,9 +35,9 @@ namespace AmazixWeb.Controllers
                 var result = await _registrationService.ConfirmEmailAsync(userId, token);
                 if (result.Succeeded)
                 {
-                    return Ok("Email confirmed successfully");
+                    return Ok("Email confirmed successfully.");
                 }
-                return BadRequest(new { message = "Email confirmation failed" });
+                return BadRequest(new { message = "Email confirmation failed." });
             }
             catch (Exception ex)
             {

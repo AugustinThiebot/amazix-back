@@ -19,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddScoped<IUrlHelper>(x =>
 {
     var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
