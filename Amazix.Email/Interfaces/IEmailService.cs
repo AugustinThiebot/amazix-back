@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Amazix.Email
+namespace Amazix.Email.Interfaces
 {
-    public interface IEmailSender
+    public interface IEmailService
     {
         void SendEmail(Message message);
     }

@@ -6,13 +6,14 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using Amazix.Email.Interfaces;
 
 namespace Amazix.Email
 {
-    public class EmailSender : IEmailSender
+    public class EmailService : IEmailService
     {
         private readonly EmailConfiguration _emailConfig;
-        public EmailSender(EmailConfiguration emailConfig)
+        public EmailService(EmailConfiguration emailConfig)
         {
             _emailConfig = emailConfig;
         }

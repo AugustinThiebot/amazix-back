@@ -1,4 +1,5 @@
 ﻿using Amazix.Email;
+using Amazix.Email.Interfaces;
 using Amazix.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -22,9 +23,9 @@ public class AuthController : ControllerBase
     private readonly string _jwtAudience;
     private readonly int _tokenLifetimeMinutes;
     private readonly int _refreshTokenLifetimeHours;
-    private readonly IEmailSender _emailSender;
+    private readonly IEmailService _emailService;
 
-    public AuthController(UserManager<AppUser> userManager, IConfiguration configuration, IEmailSender emailSender)
+    public AuthController(UserManager<AppUser> userManager, IConfiguration configuration, IEmailService emailService)
     {
         _userManager = userManager;
         _jwtName = configuration["Jwt:Name"];
@@ -34,7 +35,7 @@ public class AuthController : ControllerBase
         _jwtAudience = configuration["Jwt:Audience"];
         _tokenLifetimeMinutes = int.Parse(configuration["Jwt:TokenLifetimeMinutes"]);
         _refreshTokenLifetimeHours = int.Parse(configuration["Jwt:RefreshTokenLifetimeHours"]);
-        _emailSender = emailSender;
+        _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -68,7 +69,7 @@ public class AuthController : ControllerBase
             .ToString();
         var message = new Message(new string[] { userDto.Email },
                                 "Welcome to Amazix - Please confirm your email",messageContent);
-        _emailSender.SendEmail(message);
+        _emailService.SendEmail(message);
         return Ok(new { message = "User registered successfully." });
     }
 

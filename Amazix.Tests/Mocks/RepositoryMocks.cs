@@ -1,4 +1,4 @@
-﻿using Amazix.Email;
+﻿using Amazix.Email.Interfaces;
 using Amazix.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -27,10 +27,10 @@ namespace Amazix.Tests.Mocks
             mockConfiguration.Setup(c => c["Jwt:RefreshTokenLifetimeHours"]).Returns("4");
             return mockConfiguration;
         }
-        public static Mock<IEmailSender> GetEmailSenderMock()
+        public static Mock<IEmailService> GetEmailServiceMock()
         {
-            var mockEmailSender = new Mock<IEmailSender>();
-            return mockEmailSender;
+            var mockEmailService = new Mock<IEmailService>();
+            return mockEmailService;
         }
         public static UserForLoginDto GetUserForLoginDtoMock()
         {

@@ -1,5 +1,6 @@
 using Amazix.DataAccess.Data;
 using Amazix.Email;
+using Amazix.Email.Interfaces;
 using Amazix.Models;
 using AmazixWeb.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 builder.Services.AddSingleton(emailConfig);
-builder.Services.AddScoped<IEmailSender, EmailSender>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
