@@ -16,7 +16,7 @@ namespace Amazix.Tests.Controllers
         public async Task Register_ShouldReturnOk_WhenRegistrationSucceeds()
         {
             var mockRegistrationService = new Mock<IRegistrationService>();
-            mockRegistrationService.Setup(s => s.RegisterUserAsync(It.IsAny<UserForRegistrationDto>(), It.IsAny<string>()))
+            mockRegistrationService.Setup(s => s.RegisterUserAsync(It.IsAny<UserForRegistrationDto>()))
                                    .ReturnsAsync(IdentityResult.Success);
             var mockHttpContext = new Mock<HttpContext>();
             var mockRequest = new Mock<HttpRequest>();
@@ -42,7 +42,7 @@ namespace Amazix.Tests.Controllers
         public async Task Register_ShouldReturnBadRequest_WhenRegistrationFails()
         {
             var mockRegistrationService = new Mock<IRegistrationService>();
-            mockRegistrationService.Setup(s => s.RegisterUserAsync(It.IsAny<UserForRegistrationDto>(), It.IsAny<string>()))
+            mockRegistrationService.Setup(s => s.RegisterUserAsync(It.IsAny<UserForRegistrationDto>()))
                                    .ReturnsAsync(IdentityResult.Failed());
             var mockHttpContext = new Mock<HttpContext>();
             var mockRequest = new Mock<HttpRequest>();

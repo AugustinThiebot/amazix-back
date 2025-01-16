@@ -17,7 +17,7 @@ namespace AmazixWeb.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] UserForRegistrationDto userDto)
         {
-            var result = await _registrationService.RegisterUserAsync(userDto, Request.Scheme);
+            var result = await _registrationService.RegisterUserAsync(userDto);
             if (!result.Succeeded)
             {
                 return BadRequest(result.Errors);

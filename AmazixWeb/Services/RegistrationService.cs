@@ -14,13 +14,15 @@ namespace AmazixWeb.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IUrlHelper _urlHelper;
-        public RegistrationService(UserManager<AppUser> userManager, IEmailService emailService, IUrlHelper urlHelper) {
+        private readonly HttpRequest _request;
+        public RegistrationService(UserManager<AppUser> userManager, IEmailService emailService, IUrlHelper urlHelper, IHttpContextAccessor httpContextAccessor) {
             _userManager = userManager;
             _emailService = emailService;
             _urlHelper = urlHelper;
+            _request = httpContextAccessor.HttpContext.Request;
         }
 
-        public async Task<IdentityResult> RegisterUserAsync(UserForRegistrationDto userDto, string scheme)
+        public async Task<IdentityResult> RegisterUserAsync(UserForRegistrationDto userDto)
         {
             var user = new AppUser
             {
@@ -32,7 +34,7 @@ namespace AmazixWeb.Services
 
             if (result.Succeeded) {
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                var confirmationLink = _urlHelper.Action("ConfirmEmail", "Registration", new { userId = user.Id, token = token }, scheme);
+                var confirmationLink = _urlHelper.Action("ConfirmEmail", "Registration", new { userId = user.Id, token = token }, _request.Scheme);
                 var messageContent = new StringBuilder()
                     .AppendLine("Thank you for signing up for Amazix. To complete your registration, please confirm your email address by clicking the link below :")
                     .AppendLine()

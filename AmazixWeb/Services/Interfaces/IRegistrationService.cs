@@ -5,7 +5,7 @@ namespace AmazixWeb.Services.Interfaces
 {
     public interface IRegistrationService
     {
-        Task<IdentityResult> RegisterUserAsync(UserForRegistrationDto userDto, string scheme);
+        Task<IdentityResult> RegisterUserAsync(UserForRegistrationDto userDto);
         Task<IdentityResult> ConfirmEmailAsync(string userId, string token);
     }
 }
