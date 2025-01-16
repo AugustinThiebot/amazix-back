@@ -91,8 +91,16 @@ public class AuthController : ControllerBase
     
     [HttpPost("logout")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+        var userId = User.Claims.First(i => i.Type == ClaimTypes.NameIdentifier).Value;
+        if (userId != null)
+        {
+            AppUser user = await _userManager.FindByIdAsync(userId);
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            await _userManager.UpdateAsync(user);
+        }
         Response.Cookies.Delete(_jwtName);
         Response.Cookies.Delete(_jwtRefreshName);
         return Ok(new
