@@ -24,12 +24,12 @@ namespace AmazixWeb.Middlewares
                     var csrfHeader = context.Request.Headers["X-XSRF-TOKEN"].FirstOrDefault();
                     var csrfCookie = context.Request.Cookies["XSRF-TOKEN"];
 
-                    //if (string.IsNullOrEmpty(csrfHeader) || csrfHeader != csrfCookie)
-                    //{
-                    //    context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                    //    await context.Response.WriteAsync("CSRF validation failed.");
-                    //    return;
-                    //}
+                    if (string.IsNullOrEmpty(csrfHeader) || csrfHeader != csrfCookie)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        await context.Response.WriteAsync("CSRF validation failed.");
+                        return;
+                    }
                 }
             }
 

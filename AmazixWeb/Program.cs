@@ -105,7 +105,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCookiePolicy();
 app.UseMiddleware<JwtCookieMiddleware>();
-app.UseMiddleware<CsrfMiddleware>();
 app.UseCors("AllowAngularFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
