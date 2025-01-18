@@ -101,8 +101,8 @@ public class AuthController : ControllerBase
             user.RefreshTokenExpiryTime = null;
             await _userManager.UpdateAsync(user);
         }
-        Response.Cookies.Delete(_jwtName);
-        Response.Cookies.Delete(_jwtRefreshName);
+        Response.Cookies.Delete(_jwtName, new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.None, Secure = true });
+        Response.Cookies.Delete(_jwtRefreshName, new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.None, Secure = true, Path = "/api/Auth/refresh" });
         return Ok(new
         {
             message = "Logged out successfully."
