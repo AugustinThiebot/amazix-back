@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazix.Tests", "Amazix.Test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmazixWeb", "AmazixWeb\AmazixWeb.csproj", "{6B92B982-8A8E-4FCD-89D0-A2B660B414A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amazix.Email", "Amazix.Email\Amazix.Email.csproj", "{2BA5AF9D-E784-424C-A951-B9540C0E3884}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazix.Email", "Amazix.Email\Amazix.Email.csproj", "{2BA5AF9D-E784-424C-A951-B9540C0E3884}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Amazix.IDP", "Amazix.IDP\Amazix.IDP.csproj", "{9A3F1BA6-867C-445D-A885-132C0E823089}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{2BA5AF9D-E784-424C-A951-B9540C0E3884}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BA5AF9D-E784-424C-A951-B9540C0E3884}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BA5AF9D-E784-424C-A951-B9540C0E3884}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A3F1BA6-867C-445D-A885-132C0E823089}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A3F1BA6-867C-445D-A885-132C0E823089}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A3F1BA6-867C-445D-A885-132C0E823089}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A3F1BA6-867C-445D-A885-132C0E823089}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
